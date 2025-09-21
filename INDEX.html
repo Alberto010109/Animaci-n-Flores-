@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Flores Amarillas 🌼💛</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #E6E6FA; /* Morado pastel */
+        text-align: center;
+    }
+    #formulario {
+        margin-top: 50px;
+    }
+    input, button {
+        font-size: 16px;
+        padding: 8px;
+        margin: 5px;
+    }
+    canvas {
+        display: none;
+        background-color: #E6E6FA;
+    }
+</style>
+</head>
+<body>
+
+<div id="formulario">
+    <h1>Flores Amarillas 💛</h1>
+    <input type="text" id="nombre" placeholder="Tu nombre">
+    <input type="text" id="novio" placeholder="Nombre de tu novio">
+    <input type="text" id="fecha" placeholder="Fecha (ej: 21/09/2025)">
+    <br>
+    <button onclick="validar()">Aceptar</button>
+</div>
+
+<canvas id="canvas" width="800" height="600"></canvas>
+
+<audio id="musica" src="" preload="auto"></audio>
+
+<script>
+const nombresValidos = ["verónica guerra pérez", "vero", "veritoo", "mi amor"];
+const nombresNovio = ["alberto", "alberto hernández", "albertano"];
+
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
+let objetos = [];
+let imagenes = {};
+
+// Enlaces directos: reemplaza estos enlaces con tus archivos subidos a GitHub o Drive
+imagenes.flor1 = "https://TU_ENLACE/flor1.png";
+imagenes.flor2 = "https://TU_ENLACE/flor2.jpg";
+imagenes.corazon = "https://TU_ENLACE/corazon.png";
+let musica = document.getElementById("musica");
+musica.src = "https://TU_ENLACE/te_amo_alexander_acha.mp3";
+
+function validar() {
+    let nombre = document.getElementById("nombre").value.toLowerCase().trim();
+    let novio = document.getElementById("novio").value.toLowerCase().trim();
+    let fecha = document.getElementById("fecha").value.trim();
+
+    if(!nombresValidos.includes(nombre)){
+        alert("Nombre incorrecto 💔");
+        return;
+    }
+    if(!nombresNovio.includes(novio)){
+        alert("Nombre de novio incorrecto 💔");
+        return;
+    }
+    if(fecha === ""){
+        alert("Debes ingresar la fecha 💔");
+        return;
+    }
+
+    document.getElementById("formulario").style.display = "none";
+    canvas.style.display = "block";
+
+    // Mensaje central
+    ctx.fillStyle = "darkorange";
+    ctx.font = "20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("💛 Feliz día de las flores amarillas 💛", canvas.width/2, canvas.height/2 - 20);
+    ctx.fillText("Aunque estemos lejos siempre pienso en ti...", canvas.width/2, canvas.height/2 + 10);
+    ctx.fillText("¡Te amo!", canvas.width/2, canvas.height/2 + 40);
+
+    // Crear objetos iniciales
+    for(let i=0;i<15;i++) crearObjeto();
+
+    animar();
+    musica.play();
+}
+
+// Crear objeto (flor o corazón)
+function crearObjeto() {
+    let tipo = ["flor1","flor2","corazon"];
+    let img = new Image();
+    img.src = imagenes[tipo[Math.floor(Math.random()*3)]];
+    objetos.push({
+        img: img,
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        vx: (Math.random()*2-1),
+        vy: (Math.random()*1.5-0.5),
+        vida: Math.floor(Math.random()*200)+300,
+        exploding: false
+    });
+}
+
+// Explosión
+function explotar(obj) {
+    for(let i=0;i<10;i++){
+        let angle = Math.random()*2*Math.PI;
+        let speed = Math.random()*2+1;
+        objetos.push({
+            img: obj.img,
+            x: obj.x,
+            y: obj.y,
+            vx: Math.cos(angle)*speed,
+            vy: Math.sin(angle)*speed,
+            vida: Math.floor(Math.random()*70)+80,
+            exploding:true
+        });
+    }
+}
+
+// Animación
+function animar() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(let i=objetos.length-1;i>=0;i--){
+        let obj = objetos[i];
+        obj.x += obj.vx;
+        obj.y += obj.vy;
+        obj.vy += 0.02; // gravedad leve
+        obj.vida--;
+
+        ctx.drawImage(obj.img,obj.x-obj.img.width/2,obj.y-obj.img.height/2);
+
+        if(obj.vida <= 20 && !obj.exploding){
+            obj.exploding = true;
+            explotar(obj);
+            objetos.splice(i,1);
+            continue;
+        }
+
+        // Rebotar en bordes
+        if(obj.x <=0 || obj.x >= canvas.width) obj.vx*=-1;
+        if(obj.y <=0 || obj.y >= canvas.height) obj.vy*=-0.5;
+
+        if(obj.vida <= 0) objetos.splice(i,1);
+    }
+
+    requestAnimationFrame(animar);
+}
+</script>
+
+</body>
+</html>
+
